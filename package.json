@@ -24,7 +24,6 @@
     "node": ">= 0.8.0"
   },
   "scripts": {
-    "start": "node ./app/app.js",
     "test": "grunt test"
   },
   "devDependencies": {
