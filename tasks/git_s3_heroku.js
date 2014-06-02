@@ -13,7 +13,9 @@ module.exports = function (grunt) {
       fs = require('fs'),
       path = require('path'),
       AWS = require('aws-sdk'),
-      fmt = require('util').format,
+      util = require('util'),
+      fmt = util.format,
+      os = require('os'),
       request = require('superagent');
 
   function validateOptions(options) {
@@ -29,10 +31,11 @@ module.exports = function (grunt) {
   grunt.registerMultiTask('git_s3_heroku', 'Deploy git-controlled app to heroku via S3', function () {
     var done = this.async(),
         options = validateOptions(this.options({
-          packageDir: 'tmp',
+          packageDir: os.tmpdir(),
+          gitDescribeArgs: [],
           herokuApiVersion: 3,
-          s3Acl: 'public-read',
           herokuApiToken: process.env.HEROKU_API_TOKEN,
+          s3Acl: 'public-read',
           accessKeyId: process.env.AWS_ACCESS_KEY_ID,
           secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
         })),
@@ -40,7 +43,10 @@ module.exports = function (grunt) {
 
     grunt.log.write('Defining package name...');
 
-    exec('git describe --always --dirty=-' + new Date().getTime(), function (err, stdo) {
+    var describeArgs = util.isArray(options.gitDescribeArgs) ?
+        options.gitDescribeArgs.join(' ') : options.gitDescribeArgs();
+
+    exec('git describe ' + describeArgs, function (err, stdo) {
       if (err) return done(err);
 
       packageName = stdo.toString().trim() + '.tar.gz';
@@ -49,9 +55,7 @@ module.exports = function (grunt) {
       grunt.log.write(fmt('%s. ', packageName));
       grunt.log.ok();
 
-      grunt.log.write(fmt('Packing application in %s... ', packagePath));
-
-      grunt.file.mkdir(options.packageDir);
+      grunt.log.write(fmt('Packing application into %s... ', packagePath));
 
       exec('git archive HEAD --format tar.gz -o ' + packagePath, function (err) {
         if (err) return done(err);
@@ -75,6 +79,58 @@ module.exports = function (grunt) {
         }, function (err, data) {
           if (err) return done(err);
 
+          function printBuildLog(buildId) {
+
+            grunt.verbose.write('Getting build result... ');
+
+            request
+                .get(fmt('https://api.heroku.com/apps/%s/builds/%s/result', options.herokuAppName, buildId))
+                .auth('', options.herokuApiToken)
+                .set('Accept', 'application/vnd.heroku+json; version=' + options.herokuApiVersion)
+                .end(function (err, res) {
+                  if (err) return done(err);
+
+                  grunt.verbose.ok();
+
+                  grunt.verbose.writeln(res.body.lines.map(function (line) {
+                    return line.line;
+                  }).join(''));
+
+                  done();
+                });
+          }
+
+          function checkBuildStatus(buildId) {
+            grunt.log.write('Checking build status... ');
+
+            request
+                .get(fmt('https://api.heroku.com/apps/%s/builds/%s', options.herokuAppName, buildId))
+                .auth('', options.herokuApiToken)
+                .set('Accept', 'application/vnd.heroku+json; version=' + options.herokuApiVersion)
+                .end(function (err, res) {
+                  if (err) return done(err);
+
+                  var status = res.body.status;
+
+                  switch (status) {
+                    case 'succeeded':
+                      grunt.log.ok(status);
+                      printBuildLog(buildId);
+                      break;
+                    case 'failed':
+                      grunt.warn(fmt('Build %s failed', buildId));
+                      break;
+                    case 'pending':
+                      grunt.log.writeln(status);
+
+                      setTimeout(function () {
+                        checkBuildStatus(buildId);
+                      }, 5000);
+                      break;
+                  }
+                });
+          }
+
           grunt.log.ok();
           grunt.verbose.writeflags(data, 'S3 putObject');
           grunt.log.write(fmt('Deploying build to heroku... '));
@@ -86,20 +142,21 @@ module.exports = function (grunt) {
               .send({
                 source_blob: {
                   url: fmt('http://%s.s3.amazonaws.com/%s', options.s3Bucket, packageName),
-                  version: packageName
+                  version: path.basename(packageName, path.extname(packageName))
                 }
               })
               .end(function (err, res) {
                 if (err) return done(err);
-                grunt.verbose.writeflags(res.body, 'Heroku');
+
+                grunt.log.ok();
+
+                grunt.verbose.writeflags(res.body, 'Heroku Build');
 
                 if (res.status !== 201) {
                   grunt.warn(fmt('Heroku API call failed with status %s: "%s". ', res.status, res.body.message));
                 }
 
-                grunt.log.ok();
-
-                done();
+                checkBuildStatus(res.body.id);
               });
         });
       });

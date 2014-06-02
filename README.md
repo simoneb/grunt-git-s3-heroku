@@ -1,6 +1,6 @@
 # grunt-git-s3-heroku
 
-> The best Grunt plugin ever.
+> Deploy a git-versioned application to Heroku via AWS S3
 
 ## Getting Started
 This plugin requires Grunt `~0.4.0`
@@ -35,49 +35,74 @@ grunt.initConfig({
 });
 ```
 
+### How it works
+
+This plugin deploys a git-versioned application to Heroku via S3. Here's how it does it:
+
+1. run `git describe` to create a name for the package
+2. run `git archive` to create the package
+3. upload the package to AWS S3
+4. deploy the package to Heroku using the Heroku Platform API
+
 ### Options
 
-#### options.separator
+#### options.gitDescribeArgs
+Type: `Array`, `Function`
+Default value: `[]`
+
+Command line args to supply to `git describe`. Common options are `--always` and `--dirty`.  
+When a function is supplied it should return a string containing all args.
+
+#### options.packageDir
 Type: `String`
-Default value: `',  '`
+Default value: `os.tmpdir()`
 
-A string value that is used to do something with whatever.
+The folder in which the temporary package is saved before being uploaded to S3.
 
-#### options.punctuation
+#### options.accessKeyId
 Type: `String`
-Default value: `'.'`
+Default value: `process.env.AWS_ACCESS_KEY_ID`
 
-A string value that is used to do something else with whatever else.
+The AWS access key id.
+
+#### options.secretAccessKey
+Type: `String`
+Default value: `process.env.AWS_SECRET_ACCESS_KEY`
+
+The AWS secret access key.
+
+#### options.s3Bucket
+Type: `String`
+
+The name of the AWS S3 bucket where to upload the packaged application.
+
+#### options.s3Acl
+Type: `String`
+Default value: `public-read`
+
+The AWS S3 ACL to apply to the uploaded object.
+
+#### options.herokuAppName
+Type: `String`
+
+The name of the heroku application.
+
+#### options.herokuApiToken
+Type: `String`
+Default value: `process.env.HEROKU_API_TOKEN`
+
+The API token to use to authenticate to the heroku platform API.
 
 ### Usage Examples
 
-#### Default Options
-In this example, the default options are used to do something with whatever. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result would be `Testing, 1 2 3.`
-
 ```js
 grunt.initConfig({
   git_s3_heroku: {
-    options: {},
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
-  },
-});
-```
-
-#### Custom Options
-In this example, custom options are used to do something else with whatever else. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result in this case would be `Testing: 1 2 3 !!!`
-
-```js
-grunt.initConfig({
-  git_s3_heroku: {
-    options: {
-      separator: ': ',
-      punctuation: ' !!!',
-    },
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
+    myApp: {
+      gitDescribeArgs: ['--always'],
+      s3Bucket: 'my-bucket',
+      herokuAppName: 'my-app'
+    }
   },
 });
 ```
@@ -86,4 +111,4 @@ grunt.initConfig({
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
-_(Nothing yet)_
+03/06/2014    v0.1.0    Initial release

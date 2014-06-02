@@ -39,11 +39,11 @@ module.exports = function(grunt) {
     git_s3_heroku: {
      test: {
        options: {
-         packageDir: 'tmp',
+         gitDescribeArgs: ['--always'],
          accessKeyId: credentials.accessKeyId,
          secretAccessKey: credentials.secretAccessKey,
          s3Bucket: 'grunt-git-s3-heroku',
-         herokuApiToken: 'c5a12c5b-0a56-423a-af73-c50a102d06c7',
+         herokuApiToken: credentials.herokuApiToken,
          herokuAppName: 'grunt-git-s3-heroku'
        }
      }

@@ -33,15 +33,12 @@ exports.git_s3_heroku = {
   test: function (test) {
     test.expect(2);
 
-    setTimeout(function() {
-      request
-          .get('http://grunt-git-s3-heroku.herokuapp.com/')
-          .end(function (res) {
-            test.equal(res.status, 200, 'status');
-            test.equal(res.text, version, 'text');
-            test.done();
-          });
-    }, 8000);
-
+    request
+        .get('http://grunt-git-s3-heroku.herokuapp.com/')
+        .end(function (res) {
+          test.equal(res.status, 200, 'status');
+          test.equal(res.text, version, 'text');
+          test.done();
+        });
   }
 };
