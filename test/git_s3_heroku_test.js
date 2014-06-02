@@ -31,17 +31,17 @@ exports.git_s3_heroku = {
   },
 
   test: function (test) {
-    test.expect(1);
+    test.expect(2);
 
     setTimeout(function() {
       request
           .get('http://grunt-git-s3-heroku.herokuapp.com/')
           .end(function (res) {
-            console.log(res);
-            test.equal(res.text, version, 'version');
+            test.equal(res.status, 200, 'status');
+            test.equal(res.text, version, 'text');
             test.done();
           });
-    }, 2000);
+    }, 8000);
 
   }
 };

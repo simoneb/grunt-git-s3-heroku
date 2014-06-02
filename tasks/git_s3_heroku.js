@@ -29,7 +29,7 @@ module.exports = function (grunt) {
   grunt.registerMultiTask('git_s3_heroku', 'Deploy git-controlled app to heroku via S3', function () {
     var done = this.async(),
         options = validateOptions(this.options({
-          packageDir: 'dist',
+          packageDir: 'tmp',
           herokuApiVersion: 3,
           s3Acl: 'public-read',
           herokuApiToken: process.env.HEROKU_API_TOKEN,

@@ -39,6 +39,7 @@ module.exports = function(grunt) {
     git_s3_heroku: {
      test: {
        options: {
+         packageDir: 'tmp',
          accessKeyId: credentials.accessKeyId,
          secretAccessKey: credentials.secretAccessKey,
          s3Bucket: 'grunt-git-s3-heroku',
