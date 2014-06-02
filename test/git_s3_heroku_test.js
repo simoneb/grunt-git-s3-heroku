@@ -1,6 +1,8 @@
 'use strict';
 
-var grunt = require('grunt');
+var grunt = require('grunt'),
+    request = require('superagent'),
+    version = require('../package.json').version;
 
 /*
  ======== A Handy Little Nodeunit Reference ========
@@ -31,8 +33,15 @@ exports.git_s3_heroku = {
   test: function (test) {
     test.expect(1);
 
-    test.equal(1, 1, 'one should equal one');
+    setTimeout(function() {
+      request
+          .get('http://grunt-git-s3-heroku.herokuapp.com/')
+          .end(function (res) {
+            console.log(res);
+            test.equal(res.text, version, 'version');
+            test.done();
+          });
+    }, 2000);
 
-    test.done();
   }
 };
