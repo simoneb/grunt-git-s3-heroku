@@ -1,0 +1,50 @@
+{
+  "name": "grunt-git-s3-heroku",
+  "description": "Deploy a git-versioned application to Heroku via AWS S3",
+  "version": "0.1.0",
+  "homepage": "https://github.com/simoneb/grunt-git-s3-heroku",
+  "author": {
+    "name": "Simone Busoli",
+    "email": "simone.busoli@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/simoneb/grunt-git-s3-heroku.git"
+  },
+  "bugs": {
+    "url": "https://github.com/simoneb/grunt-git-s3-heroku/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/simoneb/grunt-git-s3-heroku/blob/master/LICENSE-MIT"
+    }
+  ],
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "^0.9.2",
+    "grunt-contrib-clean": "^0.5.0",
+    "grunt-contrib-nodeunit": "^0.3.3",
+    "grunt": "~0.4.0"
+  },
+  "peerDependencies": {
+    "grunt": "~0.4.0"
+  },
+  "keywords": [
+    "gruntplugin",
+    "heroku",
+    "deploy",
+    "git",
+    "s3",
+    "aws"
+  ],
+  "dependencies": {
+    "aws-sdk": "~2.0.0-rc.19",
+    "superagent": "~0.18.0"
+  }
+}
