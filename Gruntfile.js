@@ -9,6 +9,13 @@
 'use strict';
 
 module.exports = function(grunt) {
+  var credentials;
+
+  try {
+    credentials = require('grunt-awsebtdeploy-credentials');
+  } catch (err) {
+    credentials = {};
+  }
 
   // Project configuration.
   grunt.initConfig({
@@ -32,9 +39,11 @@ module.exports = function(grunt) {
     git_s3_heroku: {
      test: {
        options: {
-         s3Bucket: 'some bucket',
-         herokuApiToken: 'whatever',
-         herokuAppName: 'some app'
+         accessKeyId: credentials.accessKeyId,
+         secretAccessKey: credentials.secretAccessKey,
+         s3Bucket: 'grunt-git-s3-heroku',
+         herokuApiToken: 'c5a12c5b-0a56-423a-af73-c50a102d06c7',
+         herokuAppName: 'grunt-git-s3-heroku'
        }
      }
     },

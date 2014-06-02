@@ -24,6 +24,7 @@
     "node": ">= 0.8.0"
   },
   "scripts": {
+    "start": "node ./app/app.js",
     "test": "grunt test"
   },
   "devDependencies": {
@@ -34,6 +35,9 @@
   },
   "peerDependencies": {
     "grunt": "~0.4.0"
+  },
+  "optionalDependencies": {
+    "grunt-awsebtdeploy-credentials": "git+ssh://git@bitbucket.org:simoneb/grunt-awsebtdeploy-credentials.git"
   },
   "keywords": [
     "gruntplugin",
