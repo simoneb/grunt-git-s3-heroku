@@ -33,7 +33,7 @@
     "grunt": "~0.4.0"
   },
   "peerDependencies": {
-    "grunt": "~0.4.0"
+    "grunt": ">=0.4.0"
   },
   "optionalDependencies": {
     "grunt-awsebtdeploy-credentials": "git+ssh://git@bitbucket.org:simoneb/grunt-awsebtdeploy-credentials.git"
